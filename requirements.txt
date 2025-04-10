@@ -1,0 +1,7 @@
+Flask
+flask_cors
+requests
+pandas
+sqlalchemy
+psycopg2-binary
+tqdm
