@@ -28,7 +28,7 @@ urls = [
 
 # Database setup
 import os
-engine = create_engine(os.getenv("DATABASE_URL"))
+engine = create_engine(os.getenv("DATABASE_URL").strip())
 metadata = MetaData()
 
 fuel_prices = Table('fuel_prices', metadata,
