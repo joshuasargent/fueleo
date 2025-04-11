@@ -106,8 +106,8 @@ def get_prices():
     fuel_types = request.args.get('filters', '{}')
     filters = json.loads(fuel_types)
 
-    query = "SELECT * FROM fuel_prices WHERE date = :date"
-    df = pd.read_sql(query, engine, params={"date": str(datetime.now().date())})
+    query = "SELECT * FROM fuel_prices WHERE date = %s"
+    df = pd.read_sql(query, engine, params=(str(datetime.now().date()),))
     df['location'] = df['location'].apply(json.loads)
     df['prices'] = df['prices'].apply(json.loads)
 
