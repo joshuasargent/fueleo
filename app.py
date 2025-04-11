@@ -6,6 +6,9 @@ import json
 from sqlalchemy import create_engine, Table, Column, Integer, String, MetaData, select
 from datetime import datetime
 from tqdm import tqdm
+import threading
+import time
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -27,7 +30,6 @@ urls = [
 ]
 
 # Database setup
-import os
 engine = create_engine(os.getenv("DATABASE_URL").strip())
 metadata = MetaData()
 
@@ -82,7 +84,7 @@ def check_existing_data(conn, url):
 def main():
     data_frames = []
     with engine.connect() as conn:
-        print("Checking stations: ", end="")
+        print("Checking stations: ", end="")  # Checking stations
         for i, url in enumerate(tqdm(urls, ncols=100, desc="Checking stations")):
             if check_existing_data(conn, url):
                 print(f"Data for {url} already exists in the database. Skipping fetch.")
@@ -135,5 +137,15 @@ def after_request(response):
     return response
 
 if __name__ == "__main__":
-    main()
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    def run_main_in_background():
+        time.sleep(5)  # Optional delay to ensure server is stable
+        try:
+            main()
+        except Exception as e:
+            print(f"Error in main(): {e}")
+    
+    # Run main() in a background thread so it doesn't block app startup
+    threading.Thread(target=run_main_in_background).start()
+
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
